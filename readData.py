@@ -4,6 +4,7 @@ import sys
 import csv
 from stockHistory import StockHistory
 from algorithmRSI import AlgorithmRSI
+from traderPosition import TraderPosition
 #from executeDecision import execute_decision
 
 
@@ -23,9 +24,23 @@ def make_money(fileName,algorithms):
 			print stockHistory
 			#
 			#
-			for name,algorithm in algorithms.iteritems():
+			for name,bundle in algorithms.iteritems():
 				#
-				decision=algorithm.make_decision(stockHistory)
+				algorithm=bundle[0]
+				traderPosition=bundle[1]
+				#
+				#THE ALGORITHM MAKES A DECISION
+				decision=algorithm.make_decision(stockHistory,traderPosition)
+				print 'the decision was',decision
+				raw_input('')
+				#
+				#THE TRADER EXECUTES IT
+				traderPosition.execute_decision(decision,'SPY',row)
+				print 'the decision is executed'
+				print traderPosition
+				raw_input('')
+				#
+
 				print decision
 				raw_input('')
 				#
@@ -42,17 +57,30 @@ if __name__=='__main__':
 		sys.exit()
 	#
 	#
+	INITIAL_CASH=100000.0
+	#
+	#
 	# RSI ALGORITHM
-	parameters={'buyAt':35,'sellAt':65,'quantity':'max'}
+	parameters={'buyAt':35,'sellAt':65}
+	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 
-
-
-
-	algorithmsDictionary={'RSI_40_60':algorithmRSI}
-
 	#
-	#START TRADING WITH THE DIFFERENT ALGORITHMS
+	#ASSOCIATE A TRADERPOSITION WITH THIS ALGORITHM
+	traderRSI=TraderPosition(INITIAL_CASH)
+	#
+	#CREATE A BUNDLE WITH THE ALGORITHM AND THE POSITION
+	bundleRSI = (algorithmRSI,traderRSI)
+	#
+	#PACKAGE IT IN A DICT:
+	algorithmsDictionary={'RSI_40_60':bundleRSI}
+	#
+
+
+
+
+
+	#START TRADING WITH THE DIFFERENT ALGORITHMS AND MAKE MONEY
 	make_money(fileName,algorithmsDictionary)
 	#
 	#

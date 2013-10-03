@@ -9,9 +9,9 @@ class StockHistory:
 		#
 		self.mean=0.0
 		self.stddev=None
-		self.RSI=None
-		self.RS=0.0
-		self.nPeriods=0
+		#self.RSI=None
+		#self.RS=0.0
+		#self.nPeriods=0
 		self.sumValues=0.0
 		self.sumSquaredValues=0.0
 		self.averageGain=0.0
@@ -19,6 +19,7 @@ class StockHistory:
 		self.sumGain=0.0
 		self.sumLoss=0.0		
 		self.history=[]
+		self.stockPriceHistory=[]
 	#
 	def __repr__(self):
 
@@ -48,62 +49,6 @@ class StockHistory:
 			self.stddev=math.sqrt(self.stddev/(nPeriods-1))
 
 
-
-
-	def get_RS(self,newValue):
-		'''gets the average gain over the average loss in the last 14 periods
-		and 0 if there are no 14 periods yet'''
-
-		if len(self.history)>0:
-			lastClose=float(self.history[-1]['Adj Close'])
-		else:
-			lastClose=0.0
-		#
-		diffLast=newValue-lastClose
-
-
-		#the initial difference is artificially high
-		if self.nPeriods==0:
-			diffLast=0.0
-
-
-
-		if self.nPeriods<=13:
-			if diffLast<0:
-				self.sumLoss += diffLast
-			else:
-				self.sumGain += diffLast
-
-		if self.nPeriods < 13:
-			self.RS=0
-			return
-
-		elif self.nPeriods==13:
-			self.averageLoss=self.sumLoss/14.
-			self.averageGain=self.sumGain/14.
-
-		else:						
-			if diffLast<0.:
-				self.averageLoss = (self.averageLoss*13. + diffLast)/14.
-			else:
-				self.averageGain = (self.averageGain*13. + diffLast)/14.
-		#
-		if self.averageLoss==0.0:
-			self.RS=float('inf')
-		else:
-			self.RS=-self.averageGain/self.averageLoss
-
-
-
-
-
-	def get_RSI(self,newValue):
-			'''calculates the relative index strength'''
-			self.RSI=100. - 100./(1+self.RS)
-		#
-
-
-
 	def add_entry(self,entry):
 		'''adds the value to the history and re-calculates the
 		quantities'''
@@ -113,16 +58,22 @@ class StockHistory:
 			assert False
 		#
 
-		#get the adjusted close
-		close=float(entry['Adj Close'])
-		#obtain the relevant quantities
-		self.get_mean(close)
-		self.get_stddev(close)
-		self.get_RS(close)
-		self.get_RSI(close)
-		#save the entry
-		self.history.append(entry)
-		self.nPeriods+=1
+		self.history.append(entry) #ONE ENTRY PER DAY
+
+		for price in ['Open','High','Low','Close']:
+
+			value=float(entry[price])
+
+			#obtain the relevant quantities
+			self.get_mean(value)
+			self.get_stddev(value)
+			#self.get_RS(value)
+			#self.get_RSI(value)
+
+			#save the entry
+
+			self.stockPriceHistory.append(value)
+			self.nPeriods+=1
 
 
 
