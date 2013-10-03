@@ -32,16 +32,12 @@ def make_money(fileName,algorithms):
 				#THE ALGORITHM MAKES A DECISION
 				decision=algorithm.make_decision(stockHistory,traderPosition)
 				print 'the decision was',decision
-				raw_input('')
+				#raw_input('')
 				#
 				#THE TRADER EXECUTES IT
 				traderPosition.execute_decision(decision,'SPY',row)
 				print 'the decision is executed'
 				print traderPosition
-				raw_input('')
-				#
-
-				print decision
 				raw_input('')
 				#
 				#execute_decision(decision)
@@ -61,7 +57,7 @@ if __name__=='__main__':
 	#
 	#
 	# RSI ALGORITHM
-	parameters={'buyAt':35,'sellAt':65}
+	parameters={'buyAt':35,'sellAt':65, 'RSI_PERIODS':14}
 	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 

@@ -6,7 +6,7 @@ class TraderPosition:
 
 		self.cash=cash
 		self.stockPosition={}
-		self.currentPosition='Closed'
+		self.currentPosition={}
 		self.transactionCost=0.0025
 		self.positionHistory=[]
 
@@ -21,6 +21,7 @@ class TraderPosition:
 
 	def name_position(self,symbol):
 		#NAME THE CURRENT POSITION
+		print 'the symbol at name_position is',symbol,'with type',type(symbol)
 		if self.stockPosition[symbol]>0:
 			self.currentPosition[symbol]='Long'
 		elif self.stockPosition[symbol]==0:
@@ -39,12 +40,13 @@ class TraderPosition:
 		#
 		#
 		availableCash=self.cash
+		sharePrice=float(values['Open'])
 		#
 		#
 		#AS MANY AS POSSIBLE
 		if number=='max':
 			availableCash=availableCash*(1.0-self.transactionCost)		
-			nShares=int(availableCash/values['price'])
+			nShares=int(availableCash/sharePrice)
 
 		#AS MANY AS ARE SHORTED
 		elif number=='all':
@@ -60,20 +62,26 @@ class TraderPosition:
 			nShares=number			
 		#
 		#
-		self.stockPosition[symbol]+=nShares
+		if symbol in self.stockPosition:
+			self.stockPosition[symbol]+=nShares
+		else:
+			self.stockPosition[symbol]=nShares
 		#
 		#
 		#OPERATION COST
-		totalCost=nShares*values['price']*(1.0+self.transactionCost)
-		#
+		totalCost=nShares*sharePrice*(1.0+self.transactionCost)
+		#IMPACT ON CASH
 		self.cash=self.cash - totalCost
 		#
+		#
+		#CHECK
 		if self.cash < 0.0:
 			print 'negative cash position!',self.cash
 			print 'cost = ',cost
 		#
 		#
-		name_position(symbol)
+		#PROVIDE A NAME FOR THIS POSITION
+		self.name_position(symbol)
 		#
 		#
 	#
@@ -86,17 +94,21 @@ class TraderPosition:
 		2) the number of shares that it's told
 		'''
 	
+		sharePrice=values['Open']
 		if number=='all':
 			nShares=self.stockPosition[symbol]
 		else:
 			nShares=number
 		#
-		cashInflow=nShares * values['price']
+		cashInflow=nShares * sharePrice
 		tradingCost=cashInflow * self.transactionCost
 		self.cash=self.cash + cashInflow - tradingCost
-		self.stockPosition[symbol] = self.stockPosition[symbol] - nShares
+		if symbol in self.stockPosition:
+			self.stockPosition[symbol] = self.stockPosition[symbol] - nShares
+		else:
+			self.stockPosition[symbol] = - nShares
 		#
-		name_position(symbol)
+		self.name_position(symbol)
 	#
 	#
 	#
@@ -110,7 +122,7 @@ class TraderPosition:
 		elif self.stockPosition[symbol]=='Short':
 			self.buy_shares('all',values)
 
-		name_position(symbol)
+		self.name_position(symbol)
 		if not self.currentPosition=='Closed':
 			print 'the position was not closed'
 			print 'there are ',self.stockPosition,' shares '

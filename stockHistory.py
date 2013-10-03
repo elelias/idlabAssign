@@ -11,13 +11,9 @@ class StockHistory:
 		self.stddev=None
 		#self.RSI=None
 		#self.RS=0.0
-		#self.nPeriods=0
+		self.nPeriods=0
 		self.sumValues=0.0
 		self.sumSquaredValues=0.0
-		self.averageGain=0.0
-		self.averageLoss=0.0
-		self.sumGain=0.0
-		self.sumLoss=0.0		
 		self.history=[]
 		self.stockPriceHistory=[]
 	#
@@ -27,8 +23,7 @@ class StockHistory:
 		print '   the current mean is ',self.mean
 		print '   the current stddev is ',self.stddev
 		print '   the current number of periods is ',self.nPeriods
-		print '   the current RS is ',self.RS
-		print '   the current RSI is ',self.RSI
+		print '   the current date is ',self.history[-1]['Date']
 		return ''
 
 	def get_mean(self,newValue):
@@ -60,7 +55,7 @@ class StockHistory:
 
 		self.history.append(entry) #ONE ENTRY PER DAY
 
-		for price in ['Open','High','Low','Close']:
+		for price in ['Open','Close']:
 
 			value=float(entry[price])
 
