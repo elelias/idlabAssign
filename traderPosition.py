@@ -10,6 +10,8 @@ class TraderPosition:
 		self.transactionCost=0.0025
 		self.positionHistory=[]
 		self.tradedSymbols=symbolList
+		for element in self.tradedSymbols:
+			self.currentPosition[element]='Closed'
 
 	def __repr__(self):
 

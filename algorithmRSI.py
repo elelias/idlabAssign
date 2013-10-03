@@ -11,17 +11,19 @@ class AlgorithmRSI:
 		self.parameters=parameters
 		self.RSI_PERIODS=parameters['RSI_PERIODS']
 		self.action={}
-		self.averageGain=0.0
-		self.averageLoss=0.0
-		self.sumGain=0.0
-		self.sumLoss=0.0		
-		self.RSI=0.0
-		self.RS=0.0
+		self.averageGain={}
+		self.averageLoss={}
+		self.sumGain={}
+		self.sumLoss={}		
+		self.RSI={}
+		self.RS={}
 		self.nPeriods=0
 		self.buyAt=parameters.get('buyAt',None)
 		self.sellAt=parameters.get('sellAt',None)
 		self.buyQuantity=parameters.get('buyQuantity',None)
 		self.sellQuantity=parameters.get('sellQuantity',None)		
+
+
 	#
 	#
 	#
@@ -30,7 +32,7 @@ class AlgorithmRSI:
 
 
 
-	def get_RS(self,newValue,oldValue):
+	def get_RS(self,newValue,oldValue,symbol):
 		'''gets the average gain over the average loss in the last 14 periods
 		and 0 if there are no 14 periods yet'''
 
@@ -50,53 +52,64 @@ class AlgorithmRSI:
 		#
 		if self.nPeriods<=self.RSI_PERIODS:
 			if diffLast<0:
-				self.sumLoss += diffLast
+				if symbol in self.sumLoss:
+					self.sumLoss[symbol] += diffLast
+				else:
+					self.sumLoss[symbol] = diffLast
 			else:
-				self.sumGain += diffLast
+				if symbol in self.sumGain:
+					self.sumGain[symbol] += diffLast
+				else:
+					self.sumGain[symbol] = diffLast
 
 		if self.nPeriods < self.RSI_PERIODS:
-			self.RS=0.0
+			#
+			#
+			self.RS[symbol]=0.0
 			return
 
 		elif self.nPeriods==self.RSI_PERIODS:
-			self.averageLoss=self.sumLoss/self.RSI_PERIODS
-			self.averageGain=self.sumGain/self.RSI_PERIODS
+
+			self.averageLoss[symbol]=self.sumLoss[symbol]/self.RSI_PERIODS
+			self.averageGain[symbol]=self.sumGain[symbol]/self.RSI_PERIODS
 
 		else:						
 			if diffLast<0.:
-				self.averageLoss = (self.averageLoss*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
+				self.averageLoss[symbol] = (self.averageLoss[symbol]*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
 			else:
-				self.averageGain = (self.averageGain*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
+				self.averageGain[symbol] = (self.averageGain[symbol]*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
 		#
-		if self.averageLoss==0.0:
-			self.RS=float('inf')
+		#
+		#
+		if self.averageLoss[symbol]==0.0:
+			self.RS[symbol]=float('inf')
 		else:
-			self.RS=-self.averageGain/self.averageLoss
+			self.RS[symbol]=-self.averageGain[symbol]/self.averageLoss[symbol]
 
 	#
 	#
 	#
 	#
-	def get_RSI(self,value,oldValue):
+	def get_RSI(self,value,oldValue,symbol):
 			'''calculates the relative index strength'''
 
-			self.get_RS(value,oldValue)
-			self.RSI=100. - 100./(1.0 + self.RS)
+			self.get_RS(value,oldValue,symbol)
+			self.RSI[symbol]=100. - 100./(1.0 + self.RS[symbol])
 		#
 
 
-	def get_RSI_from_history(self,stockHistory):
+	def get_RSI_from_history(self,stockHistory,symbol):
 		'''it calculates the RSI from the history of prices
 		decisions are taken on opening, but we calculate the RSI
 		with the open and close
 		'''
 
-		if len(stockHistory.history)>1:
-			yesterday=stockHistory.history[-2]
-			today=stockHistory.history[-1]
+		if len(stockHistory[symbol].history)>1:
+			yesterday=stockHistory[symbol].history[-2]
+			today=stockHistory[symbol].history[-1]
 		else:
 			yesterday=None
-			today=stockHistory.history[-1]
+			today=stockHistory[symbol].history[-1]
 		#
 		#
 
@@ -104,62 +117,79 @@ class AlgorithmRSI:
 			#contribution to RSI from yesterday close-yesterday open
 			value=float(yesterday['Close'])
 			predecessor=float(yesterday['Open'])
-			self.get_RSI(value,predecessor)
+			self.get_RSI(value,predecessor,symbol)
 			#
 			#
 			#contribution to RSI from today open-yesterday close
 			value=float(today['Open'])
 			predecessor=float(yesterday['Close'])
-			self.get_RSI(value,predecessor)
+			self.get_RSI(value,predecessor,symbol)
 			#
 			#
 		else:
 			predecessor=0.0
 			value=float(today['Open'])
-			self.get_RSI(predecessor,value)
+			self.get_RSI(predecessor,value,symbol)
 
 
-	def make_decision(self,stockHistory,traderPosition):
+
+
+
+	def make_decision(self,stockHistory,symbol,traderPosition):
 		'''it makes a decision based on the RSI
 			the decision is performed for every
 			symbol followed by the trader'''
+		#
+		#
+		#
+		self.get_RSI_from_history(stockHistory,symbol)
+		#
+		#
+		#
+		print 'the RSI at open is ',self.RSI[symbol]
+		print 'the number of periods here is ',self.nPeriods
+		#
+		#
+		#
+		RSI=self.RSI[symbol]
+		#
+		#
+		if symbol in traderPosition.currentPosition:
+			currentPosition=traderPosition.currentPosition[symbol]
 
+		#
+		#
+		#
+		if RSI==0.:
+			self.action['action']='sit'
+			return self.action
 
-		for symbol in traderPosition.tradedSymbols:
+		if RSI < self.buyAt:
 			#
-			#
-			#
-			#
-			self.get_RSI_from_history(stockHistory)
-			print 'the RSI at open is ',self.RSI
-			print 'the number of periods here is ',self.nPeriods
-
-			if self.RSI==0.:
+			if currentPosition == 'Short':
+				print 'its short, closing'
+				self.action['action']='close'
+			elif currentPosition == 'Long':
 				self.action['action']='sit'
-				return self.action
-
-			if self.RSI < self.buyAt:
-				#
-				if traderPosition.currentPosition == 'Short':
-					self.action['action']='close'
-				elif traderPosition.currentPosition == 'Long':
-					self.action['action']='sit'
-				elif traderPosition.currentPosition == 'Closed':
-					self.action['action']='buy'
-					self.action['buyQuantity']='max'
-		#
-			elif self.RSI > self.sellAt:
-				#
-				if traderPosition.currentPosition == 'Short':
-					self.action['action']='sit'
-				elif traderPosition.currentPosition == 'Long':
-					self.action['action']='close'
-				elif traderPosition.currentPosition == 'Closed':
-					self.action['action']='sell'
-					self.action['buyQuantity']='max'
-		#
+				print 'its long, so sitting'
+			elif currentPosition == 'Closed':
+				self.action['action']='buy'
+				self.action['buyQuantity']='max'
 			else:
+				print 'the trader position is uknown'
+	#
+		elif RSI > self.sellAt:
+			#
+			if currentPosition == 'Short':
 				self.action['action']='sit'
+			elif currentPosition == 'Long':
+				self.action['action']='close'
+			elif currentPosition == 'Closed':
+				self.action['action']='sell'
+				self.action['buyQuantity']='max'
+	#
+		else:
+			self.action['action']='sit'
 
 		
 		return self.action

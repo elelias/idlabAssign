@@ -8,7 +8,8 @@ from traderPosition import TraderPosition
 #from executeDecision import execute_decision
 
 
-def make_money(fileName,algorithms):
+
+def make_money(fileName,stockHistory,algorithms):
 
 
 	with open(fileName) as ffile:
@@ -20,8 +21,7 @@ def make_money(fileName,algorithms):
 		for row in reader:
 			#
 			#
-			stockHistory.add_entry(row)
-			print stockHistory
+			stockHistory['SPY'].add_entry(row)			
 			#
 			#
 			for name,bundle in algorithms.iteritems():
@@ -31,18 +31,22 @@ def make_money(fileName,algorithms):
 				traderPosition=bundle[1]
 				#
 				#
-				#THE ALGORITHM MAKES A DECISION
-				decision=algorithm.make_decision(stockHistory,traderPosition)
-				print 'the decision was',decision
-				#raw_input('')
-				#
-				#THE TRADER EXECUTES IT
-				traderPosition.execute_decision(decision,'SPY',row)
-				print 'the decision is executed'
-				print traderPosition
-				raw_input('')
-				#
-				#execute_decision(decision)
+				#TRADE EVERY SYMBOL
+				for symbol in traderPosition.tradedSymbols:
+					#
+					#
+					#THE ALGORITHM MAKES A DECISION
+					decision=algorithm.make_decision(stockHistory,symbol,traderPosition)
+					print 'the decision was',decision
+					#
+					#
+					#THE TRADER EXECUTES IT
+					traderPosition.execute_decision(decision,symbol,row)
+					print 'the decision is executed'
+					print traderPosition
+					raw_input('')
+
+
 
 
 
@@ -67,6 +71,8 @@ if __name__=='__main__':
 	#
 	#SYMBOLS TRADING
 	tradingSymbols=['SPY']
+	#
+	#
 	#THIS SYMBOL HAS A HISTORY, ASSOCIATE AN INSTANCE OF StockHistory
 	stockHistory['SPY']=StockHistory()
 	#
@@ -86,6 +92,6 @@ if __name__=='__main__':
 
 
 	#START TRADING WITH THE DIFFERENT ALGORITHMS AND MAKE MONEY
-	make_money(fileName,algorithmsDictionary)
+	make_money(fileName,stockHistory,algorithmsDictionary)
 	#
 	#
