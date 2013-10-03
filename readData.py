@@ -10,7 +10,7 @@ from traderPosition import TraderPosition
 
 def make_money(fileName,algorithms):
 
-	stockHistory=StockHistory()
+
 	with open(fileName) as ffile:
 		#
 		#
@@ -26,8 +26,10 @@ def make_money(fileName,algorithms):
 			#
 			for name,bundle in algorithms.iteritems():
 				#
+				#
 				algorithm=bundle[0]
 				traderPosition=bundle[1]
+				#
 				#
 				#THE ALGORITHM MAKES A DECISION
 				decision=algorithm.make_decision(stockHistory,traderPosition)
@@ -52,6 +54,7 @@ if __name__=='__main__':
 		print 'there is no file to read'
 		sys.exit()
 	#
+	stockHistory={}
 	#
 	INITIAL_CASH=100000.0
 	#
@@ -62,8 +65,14 @@ if __name__=='__main__':
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 
 	#
-	#ASSOCIATE A TRADERPOSITION WITH THIS ALGORITHM
-	traderRSI=TraderPosition(INITIAL_CASH)
+	#SYMBOLS TRADING
+	tradingSymbols=['SPY']
+	#THIS SYMBOL HAS A HISTORY, ASSOCIATE AN INSTANCE OF StockHistory
+	stockHistory['SPY']=StockHistory()
+	#
+	#REPRESENT THE TRADERPOSITION OBJECT TRADING
+	#UNDER THIS ALGORITHM
+	traderRSI=TraderPosition(INITIAL_CASH,tradingSymbols)
 	#
 	#CREATE A BUNDLE WITH THE ALGORITHM AND THE POSITION
 	bundleRSI = (algorithmRSI,traderRSI)

@@ -2,13 +2,14 @@
 
 class TraderPosition:
 
-	def __init__(self,cash=0.0):
+	def __init__(self,cash=0.0,symbolList=[]):
 
 		self.cash=cash
 		self.stockPosition={}
 		self.currentPosition={}
 		self.transactionCost=0.0025
 		self.positionHistory=[]
+		self.tradedSymbols=symbolList
 
 	def __repr__(self):
 

@@ -120,40 +120,46 @@ class AlgorithmRSI:
 
 
 	def make_decision(self,stockHistory,traderPosition):
-		'''it makes a decision based on the RSI'''
+		'''it makes a decision based on the RSI
+			the decision is performed for every
+			symbol followed by the trader'''
 
-		
 
-		self.get_RSI_from_history(stockHistory)
-		print 'the RSI at open is ',self.RSI
-		print 'the number of periods here is ',self.nPeriods
-
-		if self.RSI==0.:
-			self.action['action']='sit'
-			return self.action
-
-		if self.RSI < self.buyAt:
+		for symbol in traderPosition.tradedSymbols:
 			#
-			if traderPosition.currentPosition == 'Short':
-				self.action['action']='close'
-			elif traderPosition.currentPosition == 'Long':
-				self.action['action']='sit'
-			elif traderPosition.currentPosition == 'Closed':
-				self.action['action']='buy'
-				self.action['buyQuantity']='max'
-	#
-		elif self.RSI > self.sellAt:
 			#
-			if traderPosition.currentPosition == 'Short':
+			#
+			#
+			self.get_RSI_from_history(stockHistory)
+			print 'the RSI at open is ',self.RSI
+			print 'the number of periods here is ',self.nPeriods
+
+			if self.RSI==0.:
 				self.action['action']='sit'
-			elif traderPosition.currentPosition == 'Long':
-				self.action['action']='close'
-			elif traderPosition.currentPosition == 'Closed':
-				self.action['action']='sell'
-				self.action['buyQuantity']='max'
-	#
-		else:
-			self.action['action']='sit'
+				return self.action
+
+			if self.RSI < self.buyAt:
+				#
+				if traderPosition.currentPosition == 'Short':
+					self.action['action']='close'
+				elif traderPosition.currentPosition == 'Long':
+					self.action['action']='sit'
+				elif traderPosition.currentPosition == 'Closed':
+					self.action['action']='buy'
+					self.action['buyQuantity']='max'
+		#
+			elif self.RSI > self.sellAt:
+				#
+				if traderPosition.currentPosition == 'Short':
+					self.action['action']='sit'
+				elif traderPosition.currentPosition == 'Long':
+					self.action['action']='close'
+				elif traderPosition.currentPosition == 'Closed':
+					self.action['action']='sell'
+					self.action['buyQuantity']='max'
+		#
+			else:
+				self.action['action']='sit'
 
 		
 		return self.action
