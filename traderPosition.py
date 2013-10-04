@@ -116,12 +116,11 @@ class TraderPosition:
 		#
 		#
 		#RECORD THIS ACTION
-		newDict={}
-		newDict['action']='buy'
-		newDict['nShares']=nShares
-		newDict['price']=sharePrice
-		newDict['Date']=values['Date']
-		self.actions.append(newDict)
+		
+		self.actions[-1]['nShares']=nShares
+		self.actions[-1]['price']=sharePrice
+		self.actions[-1]['Date']=values['Date']
+
 		#
 		#
 		#
@@ -159,12 +158,9 @@ class TraderPosition:
 		#
 		#
 		#RECORD THIS ACTION
-		newDict={}
-		newDict['action']='sell'
-		newDict['nShares']=nShares
-		newDict['price']=sharePrice
-		newDict['Date']=values['Date']
-		self.actions.append(newDict)
+		self.actions[-1]['nShares']=nShares
+		self.actions[-1]['price']=sharePrice
+		self.actions[-1]['Date']=values['Date']
 		#
 		self.name_position(symbol)
 	#
@@ -202,6 +198,8 @@ class TraderPosition:
 		#
 		#
 		action=decision['action']
+		newDict={'action':action}
+		self.actions.append(newDict)
 		#
 		#
 		if action=='sit':
@@ -270,7 +268,7 @@ class TraderPosition:
 
 
 		if len(self.actions)>0:
-			if self.actions[-1]['action'] in ['buy','sell']:
+			if self.actions[-1]['action'] in ['buy','sell','close']:
 				#the last action was not just sit:
 				self.PFValue_LastAction=self.PFValue
 			#	

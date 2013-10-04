@@ -1,5 +1,5 @@
 
-
+from applyStopLoss import apply_STOPLOSS
 
 class AlgorithmRSI:
 
@@ -157,8 +157,15 @@ class AlgorithmRSI:
 		#
 		#
 		if self.STOP_LOSS:
-			pass
-			#apply_stop_loss(traderPosition)
+			stopLoss=apply_STOPLOSS(traderPosition.PFValue,traderPosition.PFValue_LastAction)
+			if stopLoss:
+				if traderPosition.currentPosition[symbol]!= 'Closed':
+					self.action['action']='close'
+					return self.action
+				#
+			else:
+				pass
+
 
 		#
 		self.get_RSI_from_history(stockHistory,symbol)

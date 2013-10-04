@@ -31,7 +31,7 @@ if __name__=='__main__':
 	#
 	#
 	# RSI ALGORITHM
-	parameters={'buyAt':35,'sellAt':55, 'RSI_PERIODS':14,'stop_loss':True}
+	parameters={'buyAt':40,'sellAt':55, 'RSI_PERIODS':14,'stop_loss':True}
 	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 
