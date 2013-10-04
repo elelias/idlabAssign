@@ -12,6 +12,7 @@ class StockHistory:
 		#self.RSI=None
 		#self.RS=0.0
 		self.nPeriods=0
+		self.tradingDays=0
 		self.sumValues=0.0
 		self.sumSquaredValues=0.0
 		self.history=[]
@@ -19,11 +20,13 @@ class StockHistory:
 	#
 	def __repr__(self):
 
+		print ''
 		print 'instance of StockHistory'
+		print '   the current DATE is ',self.history[-1]['Date']		
 		print '   the current mean is ',self.mean
 		print '   the current stddev is ',self.stddev
-		print '   the current number of periods is ',self.nPeriods
-		print '   the current date is ',self.history[-1]['Date']
+		print '   the current number of trading days is ',self.tradingDays
+
 		return ''
 
 	def get_mean(self,newValue):
@@ -52,7 +55,7 @@ class StockHistory:
 			print 'the entry has to be a dictionary'
 			assert False
 		#
-
+		self.tradingDays+=1
 		self.history.append(entry) #ONE ENTRY PER DAY
 
 		for price in ['Open','Close']:
@@ -62,8 +65,6 @@ class StockHistory:
 			#obtain the relevant quantities
 			self.get_mean(value)
 			self.get_stddev(value)
-			#self.get_RS(value)
-			#self.get_RSI(value)
 
 			#save the entry
 

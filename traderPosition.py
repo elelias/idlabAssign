@@ -1,6 +1,29 @@
 
 
 class TraderPosition:
+	'''This class represents the position of the trader
+	trading under a certain algorithm. That is, there is one 
+	instance of the class per algorithm. 
+	The most important methods are:
+
+	1) execute_decision : executes the trading decision
+	determined by the algorithm to which is associated. 
+	To this end, it calls 
+	   buy_shares,
+	   sell_shares,
+	   close_position
+
+	2) process_dividends : it finds whether there were
+	dividends on a trading day and it process what to do 
+	with them
+
+	3) evaluate_position : it establishes which is the
+	value of the trader portfolio after Close on a trading
+	day
+	'''
+
+
+
 
 	def __init__(self,cash=0.0,symbolList=[]):
 
@@ -10,6 +33,9 @@ class TraderPosition:
 		self.transactionCost=0.0025
 		self.positionHistory=[]
 		self.tradedSymbols=symbolList
+		self.PFValue=0.0
+		self.actions=[]
+		self.PFValue_LastAction=0.0
 		for element in self.tradedSymbols:
 			self.currentPosition[element]='Closed'
 
@@ -19,12 +45,15 @@ class TraderPosition:
 		for sym,num in self.stockPosition.iteritems():
 			print '    there are ',num,' shares of ',sym
 		print '    the cash account is ',self.cash
-		print '    currently the position is', self.currentPosition
+		print '    currently the position is', self.currentPosition		
+		print '    the total PF value at Close is ',self.PFValue
+
+
 		return ''
 
 	def name_position(self,symbol):
 		#NAME THE CURRENT POSITION
-		print 'the symbol at name_position is',symbol,'with type',type(symbol)
+
 		if self.stockPosition[symbol]>0:
 			self.currentPosition[symbol]='Long'
 		elif self.stockPosition[symbol]==0:
@@ -53,7 +82,7 @@ class TraderPosition:
 
 		#AS MANY AS ARE SHORTED
 		elif number=='all':
-			nShares= -self.currentPosition[symbol]
+			nShares= -self.stockPosition[symbol]
 			if nShares < 0:
 				print 'WARNING:'
 				print '  \'All\' was selected but the position was not short'
@@ -84,6 +113,18 @@ class TraderPosition:
 		#
 		#
 		#PROVIDE A NAME FOR THIS POSITION
+		#
+		#
+		#RECORD THIS ACTION
+		newDict={}
+		newDict['action']='buy'
+		newDict['nShares']=nShares
+		newDict['price']=sharePrice
+		newDict['Date']=values['Date']
+		self.actions.append(newDict)
+		#
+		#
+		#
 		self.name_position(symbol)
 		#
 		#
@@ -97,9 +138,14 @@ class TraderPosition:
 		2) the number of shares that it's told
 		'''
 	
-		sharePrice=values['Open']
+		sharePrice=float(values['Open'])
 		if number=='all':
 			nShares=self.stockPosition[symbol]
+		elif number=='max':
+			#the maximum allowed number of shares if the position is
+			#short, will be all of them for the time being
+			availableCash=self.cash*(1.0-self.transactionCost)		
+			nShares=int(availableCash/sharePrice)
 		else:
 			nShares=number
 		#
@@ -111,6 +157,15 @@ class TraderPosition:
 		else:
 			self.stockPosition[symbol] = - nShares
 		#
+		#
+		#RECORD THIS ACTION
+		newDict={}
+		newDict['action']='sell'
+		newDict['nShares']=nShares
+		newDict['price']=sharePrice
+		newDict['Date']=values['Date']
+		self.actions.append(newDict)
+		#
 		self.name_position(symbol)
 	#
 	#
@@ -118,17 +173,26 @@ class TraderPosition:
 	#
 	def close_position(self,symbol,values):
 		'''closes the current position that the trader has'''
-		if self.stockPosition[symbol]=='Closed':
-			return
-		elif self.stockPosition[symbol]=='Long':
-			self.sell_shares('all',values)
-		elif self.stockPosition[symbol]=='Short':
-			self.buy_shares('all',values)
+		#
+		#
+		#
+		if self.currentPosition[symbol]=='Closed':
+			print 'close_position is being called and the position is already closed'
+			assert False
+		elif self.currentPosition[symbol]=='Long':
 
-		self.name_position(symbol)
-		if not self.currentPosition=='Closed':
+			self.sell_shares('all',symbol,values)
+		elif self.currentPosition[symbol]=='Short':
+
+			self.buy_shares('all',symbol,values)
+		else:
+			print 'the position is not known ',self.currentPosition[symbol]
+		#
+		#
+		#
+		if not self.currentPosition[symbol]=='Closed':
 			print 'the position was not closed'
-			print 'there are ',self.stockPosition,' shares '
+			print 'there are ',self.stockPosition[symbol],' shares '
 			assert False
 	#
 	#
@@ -151,21 +215,74 @@ class TraderPosition:
 			self.sell_shares(sellQuantity,symbol,values)
 		#
 		elif action=='close':
-			close_position(symbol,values)
+
+			self.close_position(symbol,values)
 		else:
 			print 'unknown action!'
 			assert False
-	#
+
 	#
 	#
 	#
 
+	def process_dividends(self,stockHistory,symbol,dividends):
+		'''finds out whether there were dividends paid on the 
+		trading day and processes the cash inflow or outflow 
+		depending on the position
+		'''
 
+		today=stockHistory[symbol].history[-1]['Date']
+		#
+		#
+		for element in dividends:
+			date=element['Date']
+			if today == date:
+				#
+				#
+				div=float(element['Dividends'])
+				#
+				#
+				if self.currentPosition[symbol]=='Long':
+
+					#print 'keeping the dividends!'
+					cashInflow = self.stockPosition[symbol] * div
+					self.cash += cashInflow
+				elif self.currentPosition[symbol]=='Short':
+
+					#print 'will have to pay the dividends!'
+					cashOutFlow = self.stockPosition[symbol]*div
+					#print 'the quantity is ',cashOutFlow
+					self.cash += cashOutFlow #+ because this is already a negative number
+				else:
+					pass
+					#print 'nothing to be done'
+
+
+	def evaluate_position(self,symbol,values):
+		'''finds out the value of the portfolio after
+		the Close on a trading day
+		'''
+
+		self.PFValue=self.cash
+		for symbol in self.tradedSymbols:
+			if symbol in self.stockPosition:
+				self.PFValue += self.stockPosition[symbol] * float(values['Close'])
+
+
+		if len(self.actions)>0:
+			if self.actions[-1]['action'] in ['buy','sell']:
+				#the last action was not just sit:
+				self.PFValue_LastAction=self.PFValue
+			#	
+
+		return self.PFValue
 
 	if __name__=='__main__':
 
 		print 'this class represents the position of a trader'
 		print 'trading under a certain algorithm'
+
+
 
 
 

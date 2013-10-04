@@ -21,7 +21,8 @@ class AlgorithmRSI:
 		self.buyAt=parameters.get('buyAt',None)
 		self.sellAt=parameters.get('sellAt',None)
 		self.buyQuantity=parameters.get('buyQuantity',None)
-		self.sellQuantity=parameters.get('sellQuantity',None)		
+		self.sellQuantity=parameters.get('sellQuantity',None)
+		self.STOP_LOSS=parameters['stop_loss']		
 
 
 	#
@@ -33,9 +34,11 @@ class AlgorithmRSI:
 
 
 	def get_RS(self,newValue,oldValue,symbol):
-		'''gets the average gain over the average loss in the last 14 periods
-		and 0 if there are no 14 periods yet'''
-
+		'''gets the average gain over the average loss in the last RSI_PERIODS 
+		periods and 0 if there are no 14 periods yet.
+		Values at Open and Close are considered for the calculation,
+		even though that only values at Open are considered for trading.
+		'''
 		#
 		#
 		diffLast=newValue-oldValue
@@ -50,7 +53,7 @@ class AlgorithmRSI:
 		#
 		#
 		#
-		if self.nPeriods<=self.RSI_PERIODS:
+		if self.nPeriods <= self.RSI_PERIODS:
 			if diffLast<0:
 				if symbol in self.sumLoss:
 					self.sumLoss[symbol] += diffLast
@@ -61,18 +64,21 @@ class AlgorithmRSI:
 					self.sumGain[symbol] += diffLast
 				else:
 					self.sumGain[symbol] = diffLast
-
+		#
+		#
 		if self.nPeriods < self.RSI_PERIODS:
 			#
 			#
 			self.RS[symbol]=0.0
 			return
-
-		elif self.nPeriods==self.RSI_PERIODS:
+		#
+		#
+		elif self.nPeriods == self.RSI_PERIODS:
 
 			self.averageLoss[symbol]=self.sumLoss[symbol]/self.RSI_PERIODS
 			self.averageGain[symbol]=self.sumGain[symbol]/self.RSI_PERIODS
-
+		#
+		#
 		else:						
 			if diffLast<0.:
 				self.averageLoss[symbol] = (self.averageLoss[symbol]*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
@@ -90,16 +96,25 @@ class AlgorithmRSI:
 	#
 	#
 	#
+	#
+	#
+	#
 	def get_RSI(self,value,oldValue,symbol):
-			'''calculates the relative index strength'''
-
+			'''calculates the relative index strength 
+			given a new value, for which it first 
+			needs to know the RS'''
+			#
 			self.get_RS(value,oldValue,symbol)
 			self.RSI[symbol]=100. - 100./(1.0 + self.RS[symbol])
+			#
 		#
-
+	#
+	#
+	#
+	#
 
 	def get_RSI_from_history(self,stockHistory,symbol):
-		'''it calculates the RSI from the history of prices
+		'''it calculates the RSI from the history of prices.
 		decisions are taken on opening, but we calculate the RSI
 		with the open and close
 		'''
@@ -130,24 +145,28 @@ class AlgorithmRSI:
 			predecessor=0.0
 			value=float(today['Open'])
 			self.get_RSI(predecessor,value,symbol)
-
-
-
-
-
+	#
+	#
+	#
+	#
+	#
 	def make_decision(self,stockHistory,symbol,traderPosition):
-		'''it makes a decision based on the RSI
+		'''it makes a decision based on the RSI.
 			the decision is performed for every
 			symbol followed by the trader'''
 		#
 		#
+		if self.STOP_LOSS:
+			pass
+			#apply_stop_loss(traderPosition)
+
 		#
 		self.get_RSI_from_history(stockHistory,symbol)
 		#
 		#
 		#
-		print 'the RSI at open is ',self.RSI[symbol]
-		print 'the number of periods here is ',self.nPeriods
+		#print 'the RSI at open is ',self.RSI[symbol]
+		#print 'the number of periods here is ',self.nPeriods
 		#
 		#
 		#
@@ -167,26 +186,28 @@ class AlgorithmRSI:
 		if RSI < self.buyAt:
 			#
 			if currentPosition == 'Short':
-				print 'its short, closing'
 				self.action['action']='close'
 			elif currentPosition == 'Long':
 				self.action['action']='sit'
-				print 'its long, so sitting'
 			elif currentPosition == 'Closed':
 				self.action['action']='buy'
 				self.action['buyQuantity']='max'
 			else:
+				print 'WARNING'
 				print 'the trader position is uknown'
+				raw_input('press to continue if OK')
 	#
 		elif RSI > self.sellAt:
 			#
 			if currentPosition == 'Short':
 				self.action['action']='sit'
 			elif currentPosition == 'Long':
+				self.action={}
 				self.action['action']='close'
 			elif currentPosition == 'Closed':
 				self.action['action']='sell'
-				self.action['buyQuantity']='max'
+				self.action['sellQuantity']='max'
+
 	#
 		else:
 			self.action['action']='sit'
