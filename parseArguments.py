@@ -1,7 +1,5 @@
 
 
-
-
 def parse_arguments(parseList):
 
 	'''it parses the arguments given 

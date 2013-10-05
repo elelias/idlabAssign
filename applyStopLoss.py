@@ -9,6 +9,6 @@ def apply_STOPLOSS(newValue,oldValue,parameters={}):
 	if oldValue==0.0:
 		return False
 		
-	if (newValue-oldValue)/newValue > 0.1:
+	if (oldValue-newValue)/oldValue > 0.1:
 		return True
 

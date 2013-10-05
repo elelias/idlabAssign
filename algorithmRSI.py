@@ -22,7 +22,8 @@ class AlgorithmRSI:
 		self.sellAt=parameters.get('sellAt',None)
 		self.buyQuantity=parameters.get('buyQuantity',None)
 		self.sellQuantity=parameters.get('sellQuantity',None)
-		self.STOP_LOSS=parameters['stop_loss']		
+		self.STOP_LOSS=parameters['stop_loss']
+		self.VERBOSE=parameters.get('VERBOSE',False)
 
 
 	#
@@ -156,10 +157,18 @@ class AlgorithmRSI:
 			symbol followed by the trader'''
 		#
 		#
+		if self.VERBOSE:
+			print
+			print 'welcome to the decision making in RSI algorithm '
+
 		if self.STOP_LOSS:
-			stopLoss=apply_STOPLOSS(traderPosition.PFValue,traderPosition.PFValue_LastAction)
+			stopLoss=apply_STOPLOSS(traderPosition.PFValue,traderPosition.PFValue_LastAction)			
 			if stopLoss:
 				if traderPosition.currentPosition[symbol]!= 'Closed':
+					if self.VERBOSE:
+						print '   the loss is above 10%'
+						print '   the last PF value is ',traderPosition.PFValue_LastAction
+						print '   and currently the PF is worth ',traderPosition.PFValue
 					self.action['action']='close'
 					return self.action
 				#
@@ -172,12 +181,9 @@ class AlgorithmRSI:
 		#
 		#
 		#
-		#print 'the RSI at open is ',self.RSI[symbol]
-		#print 'the number of periods here is ',self.nPeriods
-		#
-		#
-		#
 		RSI=self.RSI[symbol]
+		if self.VERBOSE:
+			print '    the RSI is ',RSI
 		#
 		#
 		if symbol in traderPosition.currentPosition:
@@ -188,6 +194,9 @@ class AlgorithmRSI:
 		#
 		if RSI==0.:
 			self.action['action']='sit'
+
+			if self.VERBOSE:
+				print '    No RSI, leaving...bye'
 			return self.action
 
 		if RSI < self.buyAt:
@@ -219,6 +228,9 @@ class AlgorithmRSI:
 		else:
 			self.action['action']='sit'
 
+		if self.VERBOSE:
+			print '    the decision was to ',self.action['action']
+			print '    the whole dict is ',self.action
 		
 		return self.action
 

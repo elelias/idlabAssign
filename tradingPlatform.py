@@ -31,7 +31,7 @@ if __name__=='__main__':
 	#
 	#
 	# RSI ALGORITHM
-	parameters={'buyAt':40,'sellAt':55, 'RSI_PERIODS':14,'stop_loss':True}
+	parameters={'buyAt':35,'sellAt':55, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 
@@ -72,8 +72,9 @@ if __name__=='__main__':
 	#
 	#PROCESS THE PERFORMANCE OF EACH ALGORITHM
 	for name,bundle in algorithmsDictionary.iteritems():
+		traderPosition=bundle[1]
 		PFvalue=bundle[2]
-		process_performance(name,stockHistory,PFvalue)
+		process_performance(name,stockHistory,traderPosition,PFvalue)
 
 
 

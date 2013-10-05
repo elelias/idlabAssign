@@ -56,7 +56,7 @@ def make_money(fileNames,stockHistory,algorithms):
 					#
 					#THE ALGORITHM MAKES A DECISION
 					decision=algorithm.make_decision(stockHistory,symbol,traderPosition)
-					#print 'the decision was',decision['action']
+					#
 					#
 					#
 					#THE TRADER EXECUTES IT

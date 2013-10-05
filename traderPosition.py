@@ -268,6 +268,9 @@ class TraderPosition:
 
 
 		if len(self.actions)>0:
+			self.actions[-1]['PFValue']=self.PFValue
+
+		if len(self.actions)>0:
 			if self.actions[-1]['action'] in ['buy','sell','close']:
 				#the last action was not just sit:
 				self.PFValue_LastAction=self.PFValue
