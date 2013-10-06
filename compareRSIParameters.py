@@ -42,7 +42,7 @@ if __name__=='__main__':
 
 
 	#===============================================
-	# RSI ALGORITHM BUNDLE 35 55
+	# RSI ALGORITHM BUNDLE 30 70
 	#===============================================
 	parameters={'buyAt':30,'sellAt':70, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
@@ -67,7 +67,7 @@ if __name__=='__main__':
 
 
 	#===============================================
-	# RSI ALGORITHM BUNDLE 40 60
+	# RSI ALGORITHM BUNDLE 22 70
 	#===============================================
 	parameters={'buyAt':22,'sellAt':70, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
@@ -92,7 +92,7 @@ if __name__=='__main__':
 	#
 	#
 	#===============================================
-	# RSI ALGORITHM BUNDLE 40 60
+	# RSI ALGORITHM BUNDLE 30 75
 	#===============================================
 	parameters={'buyAt':30,'sellAt':75, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
@@ -117,7 +117,7 @@ if __name__=='__main__':
 	#
 	#
 	#===============================================
-	# RSI ALGORITHM BUNDLE 40 60
+	# RSI ALGORITHM BUNDLE 22 75
 	#===============================================
 	parameters={'buyAt':22,'sellAt':75, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
