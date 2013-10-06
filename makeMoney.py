@@ -13,17 +13,15 @@ from getDividends import get_dividends
 def make_money(fileNames,stockHistory,algorithms):
 
 
+	print 'starting to make some money...'
 	VERBOSE=False
-
-	#Portfolio value after 
-	#each trading day
-	#PFValue=[]
 
 
 
 	#LOAD THE DIVIDENDS LIST
 	if len(fileNames)>1:
 		dividends=get_dividends(fileNames[1])
+
 
 
 
@@ -50,8 +48,8 @@ def make_money(fileNames,stockHistory,algorithms):
 				PFValue=bundle[2]
 				#
 				#
-				#print 'trading under ',name
-				#raw_input('')				
+				#
+				#
 				#TRADE EVERY SYMBOL
 				for symbol in traderPosition.tradedSymbols:
 					#

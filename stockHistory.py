@@ -9,6 +9,7 @@ class StockHistory:
 		#
 		self.mean=0.0
 		self.stddev=None
+		self.sharpe=None
 		#self.RSI=None
 		#self.RS=0.0
 		self.nPeriods=0
@@ -45,7 +46,6 @@ class StockHistory:
 			self.stddev=self.sumSquaredValues-nPeriods*self.mean*self.mean
 			#
 			self.stddev=math.sqrt(self.stddev/(nPeriods-1))
-
 
 	def add_entry(self,entry):
 		'''adds the value to the history and re-calculates the

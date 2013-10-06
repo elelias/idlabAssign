@@ -16,6 +16,9 @@ def process_performance(name,stockHistory,traderPosition,portfolioValues,plotPar
 	numpoints=plotParameters.get('numpoints',1)
 	location=plotParameters.get('position',9)
 	plotName=plotParameters.get('plotName','unnamed.pdf')
+	ymin=plotParameters.get('ymin',50000)
+	ymax=plotParameters.get('ymax',300000)	
+
 	#
 
 
@@ -51,17 +54,19 @@ def process_performance(name,stockHistory,traderPosition,portfolioValues,plotPar
 		if plotCloses:
 			for element in traderPosition.actions:
 				if element['action']=='close':
-					closes.append(element['PFValue']+10000)
+					closes.append(element['PFValue']+5000)
 				else:
 					closes.append(1000000)
-
-
-
-		print 'going to proess the performance of ',name
-
+		#
+		#
+		#
+		print ''
+		print '=========================================='
+		print 'going to process the performance of ',name
+		#
 		p0,=plt.plot(valueList)
 		if plotSymbol:
-			p1,=plt.plot(stockEvolution,label=symbol+'*1000')
+			p1,=plt.plot(stockEvolution,label=symbol+'*1000',color='k')
 		if plotBuys:
 			p2,=plt.plot(buys,'ro',label='buys')
 		if plotSales:
@@ -72,12 +77,13 @@ def process_performance(name,stockHistory,traderPosition,portfolioValues,plotPar
 
 		#plt.legend([p0,p1,p2,p3,p4], numpoints = 1,loc=9)			
 		plt.legend(numpoints=numpoints,loc=location)
-		print 'adding label'
+		#print 'adding label'
 		plt.ylabel('value of portfolio in $')
 		plt.xlabel('number of days')
-		plt.ylim([0,250000])
+
+		plt.ylim(ymin,ymax)
 		#plt.xlim([2000,2500])				
-		print 'showing...'
+		#print 'showing...'
 		#plt.show()
 		plt.savefig(plotName)
 		plt.close()
@@ -102,7 +108,7 @@ def compare_performance(stockHistory,algorithmsDictionary,plotParameters={}):
 			for element in history.history:
 				stockEvolution.append(1000.*float(element['Adj Close']))		
 
-		p0,=plt.plot(stockEvolution,label=symbol+'*1000')		
+		p0,=plt.plot(stockEvolution,label=symbol+'*1000',color='k')		
 
 
 		portfolioValuesList=[]

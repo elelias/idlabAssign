@@ -1,4 +1,4 @@
-
+import math
 
 class TraderPosition:
 	'''This class represents the position of the trader
@@ -229,7 +229,8 @@ class TraderPosition:
 		depending on the position
 		'''
 
-		today=stockHistory[symbol].history[-1]['Date']
+		if len(stockHistory[symbol].history) >0:
+			today=stockHistory[symbol].history[-1]['Date']
 		#
 		#
 		for element in dividends:
@@ -277,6 +278,51 @@ class TraderPosition:
 			#	
 
 		return self.PFValue
+
+
+
+	def get_sharpeRatio(self,symbol):
+
+		#
+		#
+		#get the pf values
+		pfvalues=[]
+		norm=self.actions[0]['PFValue']
+		if norm != 100000.:
+			print 'problem with sharpe',norm
+
+		oldVal=0.0
+		for val in self.actions:
+
+			if oldVal==0.0:
+				pfvalues.append(0.0)
+				oldVal=val['PFValue']
+			else:
+				newVal=val['PFValue']
+				pfvalues.append(newVal-oldVal)
+				oldVal=newVal
+
+		avrg=sum(pfvalues)/len(pfvalues)
+		#print 'the average is ',avrg
+
+		#get th stddev
+		#print 'the length is now ',len(pfvalues)
+		suma=0.
+		for val in pfvalues:
+			suma+= (val-avrg)*(val-avrg)
+		#print 'suma is ',suma
+
+		stddev=math.sqrt(suma/(len(pfvalues)-1))
+		#print 'the stddev is ',stddev
+
+		sharpeRatio= math.sqrt(252)*avrg/stddev
+
+		return sharpeRatio
+
+
+
+
+
 
 	if __name__=='__main__':
 

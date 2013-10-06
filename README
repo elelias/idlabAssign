@@ -1,0 +1,48 @@
+
+///DOWNLOAD THE CODE////
+with git installed:
+  git clone https://github.com/elelias/idlabAssign.git
+without git installed:
+  there is a 'download ZIP botton' on the bottom right side
+
+
+//WHAT THE CODE NEEDS////
+-python 2.7 
+-matplotlib for the plotting.
+
+If you don't have matplotlib installed, it's fairly easy:
+On mac:
+   easy_install matplotlib
+on ubuntu/debian
+   sudo apt-get install python-matplotlib  
+
+If there were any problems, I could quickly write the outputs to text files and write a matlab script to produce the plots. Please let me know in case of problems!
+
+
+///WHAT THE CODE IS///
+
+I tried to code up an automated trading platform, in which one can plug in algorithms and they will perform that trades. The key points are:
+
+-The code is modular and easily extensible.
+-Algorithms are represented by classes, so they can be plugged in and out from the platform.
+-All algorithms present run simultaneously. There is only one read of the historical data.
+-The code is easily extendable to adapt more than one symbol. 
+
+
+
+////RUNNING OUT OF THE BOX///
+
+There are to files which run the platform, tradingPlatform.py and compareRSIParameers.py
+They can be run with:
+
+python tradingPlatform.py  orderedTable.csv dividends.csv
+python compareRSIParameters.py orderedTable.csv dividends.csv
+
+The first one runs two instances of the RSI algorithm, with and without stop-loss orders.
+
+The second one studies the sensitivity of the algorithm to its parameters.
+
+
+
+
+

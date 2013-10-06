@@ -1,5 +1,4 @@
 
-
 import sys
 import csv
 from stockHistory import StockHistory
@@ -44,7 +43,7 @@ if __name__=='__main__':
 	#===============================================
 	# RSI ALGORITHM BUNDLE 35 55
 	#===============================================
-	parameters={'buyAt':22,'sellAt':70, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
+	parameters={'buyAt':30,'sellAt':70, 'RSI_PERIODS':14,'stop_loss':False,'VERBOSE':False}
 	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI=AlgorithmRSI(parameters) 
@@ -61,15 +60,16 @@ if __name__=='__main__':
 	bundleRSI = (algorithmRSI,traderRSI,copy.copy(portfolioValues))
 	#
 	#PACKAGE IT ALL IN A DICT:
-	algorithmsDictionary={'RSI_30_70':bundleRSI}
+	algorithmsDictionary={'RSI_30_70_14':bundleRSI}
 	#===============================================
+
 
 
 
 	#===============================================
 	# RSI ALGORITHM BUNDLE 40 60
 	#===============================================
-	parameters={'buyAt':32,'sellAt':62, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
+	parameters={'buyAt':30,'sellAt':70, 'RSI_PERIODS':14,'stop_loss':True,'VERBOSE':False}
 	#
 	# CREATE A NEW INSTANCE OF THE ALGORITHM
 	algorithmRSI_2=AlgorithmRSI(copy.copy(parameters))
@@ -86,7 +86,7 @@ if __name__=='__main__':
 	bundleRSI_2 = (algorithmRSI_2,traderRSI_2,copy.copy(portfolioValues))
 	#
 	#PACKAGE IT ALL IN A DICT:
-	#algorithmsDictionary['RSI_32_62']=bundleRSI_2
+	algorithmsDictionary['RSI_30_70_14_stoploss']=bundleRSI_2
 	#===============================================	
 	#
 	#
@@ -103,6 +103,8 @@ if __name__=='__main__':
 	#
 	#
 	print 'done making money!'
+	print ''
+	print ''
 	#
 	#
 	#PROCESS THE PERFORMANCE OF EACH ALGORITHM
@@ -112,10 +114,18 @@ if __name__=='__main__':
 		PFvalue=bundle[2]
 		plotParameters={}
 		plotParameters['plotName']=name+'.pdf'
+
+		if 'RSI_22_70_14' in name:
+			plotParameters['ymin']=50000
+			plotParameters['ymax']=300000
+		elif 'RSI_30_70_14' in name:	
+			plotParameters['ymin']=30000
+			plotParameters['ymax']=200000
 		process_performance(name,stockHistory,traderPosition,PFvalue,plotParameters)
 
-	#COMPARE ALGORITHMS AMONG THEMSELVES
-	compare_performance(stockHistory,algorithmsDictionary)
+
+		print 'the sharpe ratio for ',name, 'is ',traderPosition.get_sharpeRatio('SPY')
+
 
 
 
