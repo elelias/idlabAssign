@@ -8,11 +8,12 @@ from traderPosition import TraderPosition
 from getDividends import get_dividends
 
 
-global VERBOSE
-VERBOSE=False
+
 
 def make_money(fileNames,stockHistory,algorithms):
 
+
+	VERBOSE=False
 
 	#Portfolio value after 
 	#each trading day
@@ -43,11 +44,14 @@ def make_money(fileNames,stockHistory,algorithms):
 			for name,bundle in algorithms.iteritems():
 				#
 				#
+				#
 				algorithm=bundle[0]
 				traderPosition=bundle[1]
 				PFValue=bundle[2]
 				#
 				#
+				#print 'trading under ',name
+				#raw_input('')				
 				#TRADE EVERY SYMBOL
 				for symbol in traderPosition.tradedSymbols:
 					#
@@ -78,6 +82,9 @@ def make_money(fileNames,stockHistory,algorithms):
 					#
 					#
 					#
+					#if stockHistory[symbol].tradingDays > 2100:
+					#	VERBOSE=True
+
 					if VERBOSE:
 						print stockHistory[symbol]
 						print traderPosition

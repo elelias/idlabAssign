@@ -6,6 +6,18 @@ def process_performance(name,stockHistory,traderPosition,portfolioValues,plotPar
 	
 
 
+	#parse the plot paramters
+	symbol=plotParameters.get('symbol','SPY')
+	#
+	plotSymbol=plotParameters.get('plotSymbol',True)
+	plotBuys=plotParameters.get('plotBuys',True)
+	plotSales=plotParameters.get('plotSales',True)
+	plotCloses=plotParameters.get('plotCloses',True)
+	numpoints=plotParameters.get('numpoints',1)
+	location=plotParameters.get('position',9)
+	plotName=plotParameters.get('plotName','unnamed.pdf')
+	#
+
 
 
 	for symbol,history in stockHistory.iteritems():
@@ -13,48 +25,115 @@ def process_performance(name,stockHistory,traderPosition,portfolioValues,plotPar
 		#
 		valueList=portfolioValues[symbol]
 		stockEvolution=[]
-		for element in history.history:
-			stockEvolution.append(1000.*float(element['Adj Close']))
+
+		if plotSymbol:
+			for element in history.history:
+				stockEvolution.append(1000.*float(element['Close']))
 		#
 		#
-		buys=[]
-		#print the buys
-		for element in traderPosition.actions:
-			if element['action']=='buy':
-				buys.append(element['PFValue'])
-			else:
-				buys.append(1000000)
+		buys=[]		
+		if plotBuys:
+			for element in traderPosition.actions:
+				if element['action']=='buy':
+					buys.append(element['PFValue'])
+				else:
+					buys.append(1000000)
 		#
 		sales=[]
-		for element in traderPosition.actions:
-			if element['action']=='sell':
-				sales.append(element['PFValue'])
-			else:
-				sales.append(1000000)
+		if plotSales:
+			for element in traderPosition.actions:
+				if element['action']=='sell':
+					sales.append(element['PFValue'])
+				else:
+					sales.append(1000000)
 
 		closes=[]
-
-		for element in traderPosition.actions:
-			if element['action']=='close':
-				closes.append(element['PFValue']+10000)
-			else:
-				closes.append(1000000)
+		if plotCloses:
+			for element in traderPosition.actions:
+				if element['action']=='close':
+					closes.append(element['PFValue']+10000)
+				else:
+					closes.append(1000000)
 
 
 
 		print 'going to proess the performance of ',name
+
 		p0,=plt.plot(valueList)
-		p1,=plt.plot(stockEvolution)
-		p2,=plt.plot(buys,'ro')
-		p3,=plt.plot(sales,'ko')
-		p4,=plt.plot(closes,'ws')	
-		plt.legend([p0,p1,p2,p3,p4], ['RSI','SPY*1000','buys','sales','closes'],numpoints = 1,loc=9)			
+		if plotSymbol:
+			p1,=plt.plot(stockEvolution,label=symbol+'*1000')
+		if plotBuys:
+			p2,=plt.plot(buys,'ro',label='buys')
+		if plotSales:
+		 	p3,=plt.plot(sales,'ko',label='sales')
+		if plotCloses:
+			p4,=plt.plot(closes,'ws',label='closes')
+
+
+		#plt.legend([p0,p1,p2,p3,p4], numpoints = 1,loc=9)			
+		plt.legend(numpoints=numpoints,loc=location)
 		print 'adding label'
 		plt.ylabel('value of portfolio in $')
 		plt.xlabel('number of days')
-		plt.ylim([0,300000])
+		plt.ylim([0,250000])
+		#plt.xlim([2000,2500])				
 		print 'showing...'
 		#plt.show()
-		plt.savefig('first.png')
+		plt.savefig(plotName)
+		plt.close()
+
+
+
+
+
+def compare_performance(stockHistory,algorithmsDictionary,plotParameters={}):
+
+
+	plotName=plotParameters.get('plotName','comparison.pdf')
+	plotSymbol=plotParameters.get('plotSymbol',True)
+	numpoints=plotParameters.get('numpoints',1)
+	location=plotParameters.get('position',9)
+
+	for symbol,history in stockHistory.iteritems():
+
+		stockEvolution=[]
+
+		if plotSymbol:
+			for element in history.history:
+				stockEvolution.append(1000.*float(element['Adj Close']))		
+
+		p0,=plt.plot(stockEvolution,label=symbol+'*1000')		
+
+
+		portfolioValuesList=[]
+
+		for name,bundle in algorithmsDictionary.iteritems():
+
+			#algorithm=bundle[0]
+			#traderPosition=bundle[1]
+			PFvalue=bundle[2]
+			plt.plot(PFvalue[symbol],label=name)
+		#
+		plt.legend(numpoints=numpoints,loc=location)		
+		plt.ylabel('value of portfolio in $')
+		plt.xlabel('number of days')
+		plt.ylim([0,300000])
+
+		#plt.show()
+		plt.savefig(plotName)
+		plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

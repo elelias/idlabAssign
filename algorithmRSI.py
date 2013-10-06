@@ -42,6 +42,9 @@ class AlgorithmRSI:
 		'''
 		#
 		#
+		if self.VERBOSE:
+			print '    Inside get_RS:'
+
 		diffLast=newValue-oldValue
 		#
 		#
@@ -51,20 +54,25 @@ class AlgorithmRSI:
 		#the initial difference is artificially high
 		if self.nPeriods==1:
 			diffLast=0.0
+			diffNeg=0.0
+			diffPos=0.0
 		#
 		#
 		#
 		if self.nPeriods <= self.RSI_PERIODS:
 			if diffLast<0:
-				if symbol in self.sumLoss:
-					self.sumLoss[symbol] += diffLast
-				else:
-					self.sumLoss[symbol] = diffLast
+				diffPos=0.0
+				diffNeg=diffLast
 			else:
-				if symbol in self.sumGain:
-					self.sumGain[symbol] += diffLast
-				else:
-					self.sumGain[symbol] = diffLast
+				diffPos=diffLast
+				diffNeg=0.0
+
+			if symbol in self.sumLoss:
+				self.sumLoss[symbol] += diffNeg
+				self.sumGain[symbol] += diffPos
+			else:
+				self.sumLoss[symbol] = diffNeg
+				self.sumGain[symbol] = diffPos
 		#
 		#
 		if self.nPeriods < self.RSI_PERIODS:
@@ -76,16 +84,37 @@ class AlgorithmRSI:
 		#
 		elif self.nPeriods == self.RSI_PERIODS:
 
+
 			self.averageLoss[symbol]=self.sumLoss[symbol]/self.RSI_PERIODS
 			self.averageGain[symbol]=self.sumGain[symbol]/self.RSI_PERIODS
 		#
 		#
 		else:						
+			#more than nPeriods
+			#
 			if diffLast<0.:
-				self.averageLoss[symbol] = (self.averageLoss[symbol]*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
+				diffNeg=diffLast
+				diffPos=0.0
 			else:
-				self.averageGain[symbol] = (self.averageGain[symbol]*(self.RSI_PERIODS-1) + diffLast)/self.RSI_PERIODS
-		#
+				diffPos=diffLast
+				diffNeg=0.0
+
+
+			if self.VERBOSE:
+				print '       old averageLoss = ',self.averageLoss[symbol]
+				print '       old averageGain = ',self.averageGain[symbol]
+				print '       diffLast is ',diffLast
+				print '       diffPos  is ',diffPos
+				print '       diffNeg  is ',diffNeg
+
+			self.averageLoss[symbol] = (self.averageLoss[symbol]*(self.RSI_PERIODS-1) + diffNeg)/self.RSI_PERIODS
+			self.averageGain[symbol] = (self.averageGain[symbol]*(self.RSI_PERIODS-1) + diffPos)/self.RSI_PERIODS			
+
+			if self.VERBOSE:
+
+				print '       the new average Loss is ',self.averageLoss[symbol]
+				print '       the new average Gain is ',self.averageGain[symbol]				
+
 		#
 		#
 		if self.averageLoss[symbol]==0.0:
@@ -107,6 +136,9 @@ class AlgorithmRSI:
 			#
 			self.get_RS(value,oldValue,symbol)
 			self.RSI[symbol]=100. - 100./(1.0 + self.RS[symbol])
+			if self.VERBOSE:
+				print '   with RS =',self.RS[symbol]
+				print '   the RSI is = ',self.RSI[symbol]
 			#
 		#
 	#
@@ -120,6 +152,7 @@ class AlgorithmRSI:
 		with the open and close
 		'''
 
+
 		if len(stockHistory[symbol].history)>1:
 			yesterday=stockHistory[symbol].history[-2]
 			today=stockHistory[symbol].history[-1]
@@ -131,15 +164,26 @@ class AlgorithmRSI:
 
 		if not yesterday==None:	
 			#contribution to RSI from yesterday close-yesterday open
+
+
 			value=float(yesterday['Close'])
 			predecessor=float(yesterday['Open'])
+			if self.VERBOSE:
+				print '    value at Close yesterday ',value
+				print '    value at Open  yesterday ',predecessor
+
 			self.get_RSI(value,predecessor,symbol)
 			#
 			#
 			#contribution to RSI from today open-yesterday close
 			value=float(today['Open'])
 			predecessor=float(yesterday['Close'])
-			self.get_RSI(value,predecessor,symbol)
+
+			if self.VERBOSE:
+				print '    value at Open today ',value
+				print '    value at Close yesterday ',predecessor			
+
+			self.get_RSI(value,predecessor,symbol)				
 			#
 			#
 		else:
