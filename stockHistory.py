@@ -10,8 +10,6 @@ class StockHistory:
 		self.mean=0.0
 		self.stddev=None
 		self.sharpe=None
-		#self.RSI=None
-		#self.RS=0.0
 		self.nPeriods=0
 		self.tradingDays=0
 		self.sumValues=0.0

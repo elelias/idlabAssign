@@ -1,6 +1,7 @@
 import math
 
 class TraderPosition:
+	
 	'''This class represents the position of the trader
 	trading under a certain algorithm. That is, there is one 
 	instance of the class per algorithm. 
@@ -51,8 +52,12 @@ class TraderPosition:
 
 		return ''
 
+	#
+	#
+	#
+	#
 	def name_position(self,symbol):
-		#NAME THE CURRENT POSITION
+		'''provide a name for the current position of the trader'''
 
 		if self.stockPosition[symbol]>0:
 			self.currentPosition[symbol]='Long'
@@ -61,14 +66,15 @@ class TraderPosition:
 		else:
 			self.currentPosition[symbol]='Short'
 	#
-
-
+	#
+	#
+	#
 	def buy_shares(self,number,symbol,values):
 		'''buys some shares at the current price.
 		It can buy either:
 		1) max, which buys as many as possible with the available Cash
 		2) all, which buys all the shares that are shorted so that the position is closed
-		3) number, a certain number of them '''
+		3) number, a certain number of them, given externally'''
 		#
 		#
 		availableCash=self.cash
@@ -291,6 +297,8 @@ class TraderPosition:
 		if norm != 100000.:
 			print 'problem with sharpe',norm
 
+
+		#DAILY RETURNS
 		oldVal=0.0
 		for val in self.actions:
 
@@ -302,19 +310,20 @@ class TraderPosition:
 				pfvalues.append(newVal-oldVal)
 				oldVal=newVal
 
+
+		#AVERAGE
 		avrg=sum(pfvalues)/len(pfvalues)
 		#print 'the average is ',avrg
 
-		#get th stddev
-		#print 'the length is now ',len(pfvalues)
+		#STANDARD DEVIATION
 		suma=0.
 		for val in pfvalues:
 			suma+= (val-avrg)*(val-avrg)
-		#print 'suma is ',suma
 
 		stddev=math.sqrt(suma/(len(pfvalues)-1))
-		#print 'the stddev is ',stddev
 
+
+		#SHARPE RATIO
 		sharpeRatio= math.sqrt(252)*avrg/stddev
 
 		return sharpeRatio
