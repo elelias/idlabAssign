@@ -34,7 +34,7 @@ The general idea was to perform the required assigment, without disregarding ext
 
 ////RUNNING OUT OF THE BOX///
 
-There are to files which run the platform, tradingPlatform.py and compareRSIParameers.py
+There are to files which run the platform, tradingPlatform.py and compareRSIParameters.py
 They can be run with:
 
 python tradingPlatform.py  orderedTable.csv dividends.csv
