@@ -21,12 +21,14 @@ If there were any problems, I could quickly write the outputs to text files and 
 
 ///WHAT THE CODE IS///
 
-I tried to code up an automated trading platform, in which one can plug in algorithms and they will perform that trades. The key points are:
+I tried to code up an automated trading platform, in which one can plug in algorithms and they will perform the trades. The key points are:
 
 -The code is modular and easily extensible.
 -Algorithms are represented by classes, so they can be plugged in and out from the platform.
 -All algorithms present run simultaneously. There is only one read of the historical data.
--The code is easily extendable to adapt more than one symbol. 
+-The code can easily accomodate more than one traded symbol.
+
+The general idea was to perform the required assigment, without disregarding extensibility and modularity.
 
 
 
